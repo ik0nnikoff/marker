@@ -3,7 +3,7 @@ FROM python:3.10-slim
 
 # Устанавливаем зависимости для сборки
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential curl git && \
+    build-essential curl git python3-pip python3-cffi python3-brotli libpango-1.0-0 libpangoft2-1.0-0 && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Устанавливаем Poetry
