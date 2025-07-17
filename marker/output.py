@@ -5,9 +5,11 @@ from bs4 import BeautifulSoup, Tag
 from pydantic import BaseModel
 from PIL import Image
 
+from marker.renderers.extraction import ExtractionOutput
 from marker.renderers.html import HTMLOutput
 from marker.renderers.json import JSONOutput, JSONBlockOutput
 from marker.renderers.markdown import MarkdownOutput
+from marker.renderers.ocr_json import OCRJSONOutput
 from marker.schema.blocks import BlockOutput
 from marker.settings import settings
 
@@ -51,12 +53,20 @@ def output_exists(output_dir: str, fname_base: str):
 
 
 def text_from_rendered(rendered: BaseModel):
+    from marker.renderers.chunk import ChunkOutput  # Has an import from this file
+
     if isinstance(rendered, MarkdownOutput):
         return rendered.markdown, "md", rendered.images
     elif isinstance(rendered, HTMLOutput):
         return rendered.html, "html", rendered.images
     elif isinstance(rendered, JSONOutput):
         return rendered.model_dump_json(exclude=["metadata"], indent=2), "json", {}
+    elif isinstance(rendered, ChunkOutput):
+        return rendered.model_dump_json(exclude=["metadata"], indent=2), "json", {}
+    elif isinstance(rendered, OCRJSONOutput):
+        return rendered.model_dump_json(exclude=["metadata"], indent=2), "json", {}
+    elif isinstance(rendered, ExtractionOutput):
+        return rendered.document_json, "json", {}
     else:
         raise ValueError("Invalid output type")
 
